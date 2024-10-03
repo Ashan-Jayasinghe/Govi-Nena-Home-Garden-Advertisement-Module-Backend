@@ -21,8 +21,8 @@ if (!is_dir($uploadDir)) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Step 1: Insert common attributes into the advertisements table
-    $category = $_POST['category'];
-    $subcategory = $_POST['subcategory'];
+    $category = 'Machineries';
+    $subcategory = 'Dryers';
     $title = $_POST['title'];
     $stock = $_POST['stock'];
     $address = $_POST['address'];
@@ -40,19 +40,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $advertisement_id = $stmt->insert_id;
 
-    // Step 2: Insert unique attributes for Inorganic Fertilizers
-    $type = $_POST['type'];
-    $npkRatio = $_POST['npkRatio'];  // NPK Ratio for inorganic fertilizers
-    $method = $_POST['method'];  // Method of application
-    $price1L = $_POST['price1L'];
-    $price5L = $_POST['price5L'];
-    $price10L = $_POST['price10L'];
+    // Step 2: Insert unique attributes for Dryers
+    $condition = $_POST['condition'];
+    $rentOrSell = $_POST['rentorsell'];
+    $manufacturer = $_POST['manufacturer'];
+    $price = $_POST['price'];
 
-    $inorganic_stmt = $conn->prepare("INSERT INTO advertisement_inorganic (advertisement_id, type, npk, method, price_1L, price_5L, price_10L) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $inorganic_stmt->bind_param("issssss", $advertisement_id, $type, $npkRatio, $method, $price1L, $price5L, $price10L);
+    $dryers_stmt = $conn->prepare("INSERT INTO advertisement_dryers (advertisement_id, condition, rent_or_sell, manufacturer, price) VALUES (?, ?, ?, ?, ?)");
+    $dryers_stmt->bind_param("isssd", $advertisement_id, $condition, $rentOrSell, $manufacturer, $price);
 
-    if (!$inorganic_stmt->execute()) {
-        echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $inorganic_stmt->error));
+    if (!$dryers_stmt->execute()) {
+        echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $dryers_stmt->error));
         exit;
     }
 
@@ -86,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Success response
-    echo json_encode(array('status' => 'success', 'message' => 'Inorganic fertilizer advertisement successfully submitted'));
+    echo json_encode(array('status' => 'success', 'message' => 'Dryers advertisement successfully submitted'));
     exit;
 }
 
