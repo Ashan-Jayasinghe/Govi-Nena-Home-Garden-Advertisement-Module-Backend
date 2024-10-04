@@ -21,8 +21,8 @@ if (!is_dir($uploadDir)) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Step 1: Insert common attributes into the advertisements table
-    $category = 'Machineries';
-    $subcategory = 'Harvesting Machines';
+    $category = $_POST['category'];
+    $subcategory = $_POST['subcategory'];
     $title = $_POST['title'];
     $stock = $_POST['stock'];
     $address = $_POST['address'];
@@ -40,17 +40,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $advertisement_id = $stmt->insert_id;
 
-    // Step 2: Insert unique attributes for Harvesting Machines
+    // Step 2: Insert unique attributes for Tillages
     $condition = $_POST['condition'];
-    $rentOrSell = $_POST['rentorsell'];
+    $rentorsell = $_POST['rentorsell'];
     $manufacturer = $_POST['manufacturer'];
     $price = $_POST['price'];
 
-    $harvestingmachines_stmt = $conn->prepare("INSERT INTO advertisement_harvestingmachines (advertisement_id, condition, rent_or_sell, manufacturer, price) VALUES (?, ?, ?, ?, ?)");
-    $harvestingmachines_stmt->bind_param("isssd", $advertisement_id, $condition, $rentOrSell, $manufacturer, $price);
+    $tillages_stmt = $conn->prepare("INSERT INTO advertisement_tillage (advertisement_id, condition, rentorsell, manufacturer, price) VALUES (?, ?, ?, ?, ?)");
+    $tillages_stmt->bind_param("isssss", $advertisement_id, $condition, $rentorsell, $manufacturer, $price, $power);
 
-    if (!$harvestingmachines_stmt->execute()) {
-        echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $harvestingmachines_stmt->error));
+    if (!$tillages_stmt->execute()) {
+        echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $tillages_stmt->error));
         exit;
     }
 
@@ -84,9 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Success response
-    echo json_encode(array('status' => 'success', 'message' => 'Harvesting Machines advertisement successfully submitted'));
+    echo json_encode(array('status' => 'success', 'message' => 'Tillage advertisement successfully submitted'));
     exit;
 }
 
 $conn->close();
-?>
