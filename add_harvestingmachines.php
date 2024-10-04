@@ -46,11 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $manufacturer = $_POST['manufacturer'];
     $price = $_POST['price'];
 
-    $harvestingmachines_stmt = $conn->prepare("INSERT INTO advertisement_harvestingmachines (advertisement_id, condition, rent_or_sell, manufacturer, price) VALUES (?, ?, ?, ?, ?)");
-    $harvestingmachines_stmt->bind_param("isssd", $advertisement_id, $condition, $rentOrSell, $manufacturer, $price);
+    $harvesting_machines_stmt = $conn->prepare("INSERT INTO advertisement_harvesting_machines (advertisement_id, condition, rent_or_sell, manufacturer, price) VALUES (?, ?, ?, ?, ?)");
+    $harvesting_machines_stmt->bind_param("isssd", $advertisement_id, $condition, $rentOrSell, $manufacturer, $price);
 
-    if (!$harvestingmachines_stmt->execute()) {
-        echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $harvestingmachines_stmt->error));
+    if (!$harvesting_machines_stmt->execute()) {
+        echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $harvesting_machines_stmt->error));
         exit;
     }
 
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Success response
-    echo json_encode(array('status' => 'success', 'message' => 'Harvesting Machines advertisement successfully submitted'));
+    echo json_encode(array('status' => 'success', 'message' => 'Harvesting machines advertisement successfully submitted'));
     exit;
 }
 
