@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $manufacturer = $_POST['manufacturer'];
     $price = $_POST['price'];
 
-    $harvesting_machines_stmt = $conn->prepare("INSERT INTO advertisement_harvesting_machines (advertisement_id, condition, rent_or_sell, manufacturer, price) VALUES (?, ?, ?, ?, ?)");
+    $harvesting_machines_stmt = $conn->prepare("INSERT INTO advertisement_harvesting_machines (advertisement_id, condition_, rent_or_sell, manufacturer, price) VALUES (?, ?, ?, ?, ?)");
     $harvesting_machines_stmt->bind_param("isssd", $advertisement_id, $condition, $rentOrSell, $manufacturer, $price);
 
     if (!$harvesting_machines_stmt->execute()) {

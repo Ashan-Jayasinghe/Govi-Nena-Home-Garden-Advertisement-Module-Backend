@@ -21,8 +21,8 @@ if (!is_dir($uploadDir)) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Step 1: Insert common attributes into the advertisements table
-    $category = $_POST['category'];
-    $subcategory = $_POST['subcategory'];
+    $category = 'Machineries';
+    $subcategory = 'Tractors';
     $title = $_POST['title'];
     $stock = $_POST['stock'];
     $address = $_POST['address'];
@@ -42,13 +42,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Step 2: Insert unique attributes for Tractors
     $condition = $_POST['condition'];
-    $rentorsell = $_POST['rentorsell'];
+    $rentOrSell = $_POST['rentorsell'];
     $manufacturer = $_POST['manufacturer'];
     $price = $_POST['price'];
-    $power = $_POST['power'];
+    $power = $_POST['power'];  // Tractor power (HP or kW)
 
-    $tractors_stmt = $conn->prepare("INSERT INTO advertisement_tractor (advertisement_id, condition, rentorsell, manufacturer, price, power) VALUES (?, ?, ?, ?, ?, ?)");
-    $tractors_stmt->bind_param("isssss", $advertisement_id, $condition, $rentorsell, $manufacturer, $price, $power);
+    $tractors_stmt = $conn->prepare("INSERT INTO advertisement_tractor (advertisement_id, condition_, rent_or_sell, manufacturer, price, power) VALUES (?, ?, ?, ?, ?, ?)");
+    $tractors_stmt->bind_param("isssss", $advertisement_id, $condition, $rentOrSell, $manufacturer, $price, $power);
 
     if (!$tractors_stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $tractors_stmt->error));
@@ -90,3 +90,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 $conn->close();
+?>
