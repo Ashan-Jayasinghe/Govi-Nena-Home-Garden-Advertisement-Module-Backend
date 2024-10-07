@@ -1,10 +1,23 @@
 <?php
+
+// Set secure session cookie parameters for localhost
+session_set_cookie_params(array(
+    'lifetime' => 0, // Session lasts until the browser is closed
+    'path' => '/',   // Cookie available throughout the localhost domain
+    'domain' => 'localhost', // Use 'localhost' for local development
+    'secure' => false, // Set to true in production when using HTTPS
+    'httponly' => true, // Prevent JavaScript access to the session cookie
+    'samesite' => 'Lax'  // 'Lax' to allow CORS POST requests with cookies
+));
+session_start(); // Start the session after setting the cookie params
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Allow CORS requests from any origin
-header("Access-Control-Allow-Origin: *");
+// Allow CORS requests and credentials (required for sending cookies)
+header("Access-Control-Allow-Origin: http://localhost:8100"); // Adjust to your frontend's domain
+header("Access-Control-Allow-Credentials: true"); // Allows PHPSESSID to be sent with requests
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
@@ -31,30 +44,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($result->num_rows > 0) {
         // User exists
         $user = $result->fetch_assoc();
-
+        
         // Step 3: Verify the password hash
         if (password_verify($password, $user['password_hash'])) {
-            // Step 4: Create session (or token if needed)
-            session_start();
+            // Step 4: Create session
+            session_regenerate_id(true); // Regenerate session ID to prevent session fixation
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_email'] = $user['email'];
 
-            // Step 5: Return success response
+            // Debugging: Check session variables (optional)
+            error_log("Session Variables: " . print_r($_SESSION, true));
+
+            // Step 5: Return success response without exposing user details in cookies
             echo json_encode(array(
                 'status' => 'success',
                 'message' => 'Login successful!',
-                'user' => array(
-                    'id' => $user['id'],
-                    'name' => $user['name']
-                )
             ));
         } else {
             // Step 6: Return error for incorrect password
-            echo json_encode(array('status' => 'error', 'message' => 'Incorrect password.'));
+            echo json_encode(array('status' => 'error', 'message' => 'Invalid credentials.'));
         }
     } else {
         // Step 7: Return error if email not found
-        echo json_encode(array('status' => 'error', 'message' => 'Email not found.'));
+        echo json_encode(array('status' => 'error', 'message' => 'Invalid credentials.'));
     }
 
     // Close the statement and connection
