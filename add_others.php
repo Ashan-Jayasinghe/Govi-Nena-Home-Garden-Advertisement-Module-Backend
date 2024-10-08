@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Step 1: Insert common attributes into the advertisements table
     // Step 1: Insert common attributes into the advertisements table
     $category = 'Machineries';
-    $subcategory = 'Harvesting Machines';
+    $subcategory = 'Other';
     $title = $_POST['title'];
     $stock = $_POST['stock'];
     $address = $_POST['address'];
@@ -53,8 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $manufacturer = $_POST['manufacturer'];
     $price = $_POST['price'];
 
-    $others_stmt = $conn->prepare("INSERT INTO advertisement_others (advertisement_id,type, condition, rent_or_sell, manufacturer, price) VALUES (?,?, ?, ?, ?, ?)");
-    $others_stmt->bind_param("isssd", $advertisement_id, $condition, $rentOrSell, $manufacturer, $price);
+    $others_stmt = $conn->prepare("INSERT INTO advertisement_others (advertisement_id,type, condition_, rent_or_sell, manufacturer, price) VALUES (?,?, ?, ?, ?, ?)");
+    $others_stmt->bind_param("issssd", $advertisement_id,$type, $condition, $rentOrSell, $manufacturer, $price);
 
     if (!$others_stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $others_stmt->error));
