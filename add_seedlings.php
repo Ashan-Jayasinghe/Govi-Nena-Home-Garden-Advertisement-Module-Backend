@@ -1,14 +1,18 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Allow CORS requests from any origin
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
+session_start();
 include 'db_connection.php';  // Include the database connection file
+
+// Set CORS headers to allow requests from the frontend (localhost:8100)
+header("Access-Control-Allow-Origin: http://localhost:8100"); // Adjust the origin to match your frontend
+header("Access-Control-Allow-Credentials: true"); // Allow credentials such as cookies to be sent
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS"); // Allow the necessary request methods
+header("Access-Control-Allow-Headers: Content-Type, Authorization"); // Allow specific headers
+
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(array('status' => 'error', 'message' => 'User not authenticated.'));
+    exit();
+}
+$user_id = $_SESSION['user_id'];
 
 // Check for the existence of the 'uploads' folder and create it if it doesn't exist
 $uploadDir = 'uploads/';
@@ -21,17 +25,19 @@ if (!is_dir($uploadDir)) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Step 1: Insert common attributes into the advertisements table
-    $category = $_POST['category'];
-    $subcategory = $_POST['subcategory'];
+    // Step 1: Insert common attributes into the advertisements table
+    $category = 'Machineries';
+    $subcategory = 'Harvesting Machines';
     $title = $_POST['title'];
     $stock = $_POST['stock'];
     $address = $_POST['address'];
     $mobile = $_POST['mobile'];
+    $description = $_POST['description'];
     $acceptTerms = isset($_POST['acceptTerms']) ? 1 : 0;
 
-    // Prepare the statement for common attributes
-    $stmt = $conn->prepare("INSERT INTO advertisements (category, subcategory, title, stock, address, mobile, accept_terms) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssissi", $category, $subcategory, $title, $stock, $address, $mobile, $acceptTerms);
+ // Prepare the statement for common attributes
+ $stmt = $conn->prepare("INSERT INTO advertisements (category, subcategory, title, stock, address, mobile, accept_terms,user_id,description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+ $stmt->bind_param("sssissiis", $category, $subcategory, $title, $stock, $address, $mobile, $acceptTerms,$user_id,$description);
 
     if (!$stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $stmt->error));
@@ -71,18 +77,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    // Step 4: Insert specifications into advertisement_specifications table
-    if (isset($_POST['specifications'])) {
-        $specifications = json_decode($_POST['specifications'], true);
-        foreach ($specifications as $specification) {
-            $spec_stmt = $conn->prepare("INSERT INTO advertisement_specifications (advertisement_id, specification) VALUES (?, ?)");
-            $spec_stmt->bind_param("is", $advertisement_id, $specification);
-            if (!$spec_stmt->execute()) {
-                echo json_encode(array('status' => 'error', 'message' => 'Specification upload failed: ' . $spec_stmt->error));
-                exit;
-            }
-        }
-    }
+    // // Step 4: Insert specifications into advertisement_specifications table
+    // if (isset($_POST['specifications'])) {
+    //     $specifications = json_decode($_POST['specifications'], true);
+    //     foreach ($specifications as $specification) {
+    //         $spec_stmt = $conn->prepare("INSERT INTO advertisement_specifications (advertisement_id, specification) VALUES (?, ?)");
+    //         $spec_stmt->bind_param("is", $advertisement_id, $specification);
+    //         if (!$spec_stmt->execute()) {
+    //             echo json_encode(array('status' => 'error', 'message' => 'Specification upload failed: ' . $spec_stmt->error));
+    //             exit;
+    //         }
+    //     }
+    // }
 
     // Success response
     echo json_encode(array('status' => 'success', 'message' => 'Seedlings advertisement successfully submitted'));

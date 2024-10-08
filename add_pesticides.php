@@ -27,11 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stock = $_POST['stock'];
     $address = $_POST['address'];
     $mobile = $_POST['mobile'];
+    $description = $_POST['description'];
     $acceptTerms = isset($_POST['acceptTerms']) ? 1 : 0;
-
     // Prepare the statement for common attributes
-    $stmt = $conn->prepare("INSERT INTO advertisements (category, subcategory, title, stock, address, mobile, accept_terms) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssissi", $category, $subcategory, $title, $stock, $address, $mobile, $acceptTerms);
+    $stmt = $conn->prepare("INSERT INTO advertisements (category, subcategory, title, stock, address, mobile, accept_terms,description) VALUES (?, ?, ?, ?, ?, ?, ?,?)");
+    $stmt->bind_param("sssissis", $category, $subcategory, $title, $stock, $address, $mobile, $acceptTerms,$description);
 
     if (!$stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $stmt->error));
@@ -72,17 +72,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Step 4: Insert specifications into advertisement_specifications table
-    if (isset($_POST['specifications'])) {
-        $specifications = json_decode($_POST['specifications'], true);
-        foreach ($specifications as $specification) {
-            $spec_stmt = $conn->prepare("INSERT INTO advertisement_specifications (advertisement_id, specification) VALUES (?, ?)");
-            $spec_stmt->bind_param("is", $advertisement_id, $specification);
-            if (!$spec_stmt->execute()) {
-                echo json_encode(array('status' => 'error', 'message' => 'Specification upload failed: ' . $spec_stmt->error));
-                exit;
-            }
-        }
-    }
+    // if (isset($_POST['specifications'])) {
+    //     $specifications = json_decode($_POST['specifications'], true);
+    //     foreach ($specifications as $specification) {
+    //         $spec_stmt = $conn->prepare("INSERT INTO advertisement_specifications (advertisement_id, specification) VALUES (?, ?)");
+    //         $spec_stmt->bind_param("is", $advertisement_id, $specification);
+    //         if (!$spec_stmt->execute()) {
+    //             echo json_encode(array('status' => 'error', 'message' => 'Specification upload failed: ' . $spec_stmt->error));
+    //             exit;
+    //         }
+    //     }
+    // }
 
     // Success response
     echo json_encode(array('status' => 'success', 'message' => 'Pesticide advertisement successfully submitted'));

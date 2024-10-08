@@ -9,7 +9,24 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
 $category = $_GET['category'];
 
 if ($category) {
-    $query = $conn->prepare("SELECT * FROM advertisements WHERE category = ?");
+    // Join the advertisements table with the relevant unique attributes and images tables
+    $query = $conn->prepare("
+        SELECT 
+            a.*, 
+            d.condition_, 
+            d.rent_or_sell, 
+            d.manufacturer, 
+            d.price, 
+            i.image_path 
+        FROM 
+            advertisements a 
+        LEFT JOIN 
+            advertisement_dryers d ON a.id = d.advertisement_id 
+        LEFT JOIN 
+            advertisement_images i ON a.id = i.advertisement_id 
+        WHERE 
+            a.category = ?
+    ");
     $query->bind_param('s', $category);
     $query->execute();
     $result = $query->get_result();
@@ -17,6 +34,7 @@ if ($category) {
     $ads = array();
     
     while ($row = $result->fetch_assoc()) {
+        // If you want to handle multiple images, you can group them
         $ads[] = $row;
     }
     

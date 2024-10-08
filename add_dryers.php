@@ -32,12 +32,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $address = $_POST['address'];
     $mobile = $_POST['mobile'];
     $acceptTerms = isset($_POST['acceptTerms']) ? 1 : 0;
+    $description = $_POST['description'];
     // $userId = $_POST['userId'];  // Get user ID
     //$userId = (int)$_POST['userId'];
 
     // Prepare the statement for common attributes
-    $stmt = $conn->prepare("INSERT INTO advertisements (category, subcategory, title, stock, address, mobile, accept_terms,user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssissii", $category, $subcategory, $title, $stock, $address, $mobile, $acceptTerms,$user_id);
+    $stmt = $conn->prepare("INSERT INTO advertisements (category, subcategory, title, stock, address, mobile, accept_terms,user_id,description) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)");
+    $stmt->bind_param("sssissiis", $category, $subcategory, $title, $stock, $address, $mobile, $acceptTerms,$user_id,$description);
 
     if (!$stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $stmt->error));
@@ -76,18 +77,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    // Step 4: Insert specifications into advertisement_specifications table
-    if (isset($_POST['specifications'])) {
-        $specifications = json_decode($_POST['specifications'], true);
-        foreach ($specifications as $specification) {
-            $spec_stmt = $conn->prepare("INSERT INTO advertisement_specifications (advertisement_id, specification) VALUES (?, ?)");
-            $spec_stmt->bind_param("is", $advertisement_id, $specification);
-            if (!$spec_stmt->execute()) {
-                echo json_encode(array('status' => 'error', 'message' => 'Specification upload failed: ' . $spec_stmt->error));
-                exit;
-            }
-        }
-    }
+    // // Step 4: Insert specifications into advertisement_specifications table
+    // if (isset($_POST['specifications'])) {
+    //     $specifications = json_decode($_POST['specifications'], true);
+    //     foreach ($specifications as $specification) {
+    //         $spec_stmt = $conn->prepare("INSERT INTO advertisement_specifications (advertisement_id, specification) VALUES (?, ?)");
+    //         $spec_stmt->bind_param("is", $advertisement_id, $specification);
+    //         if (!$spec_stmt->execute()) {
+    //             echo json_encode(array('status' => 'error', 'message' => 'Specification upload failed: ' . $spec_stmt->error));
+    //             exit;
+    //         }
+    //     }
+    // }
 
     // Success response
     echo json_encode(array('status' => 'success', 'message' => 'Dryers advertisement successfully submitted'));
