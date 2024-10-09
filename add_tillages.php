@@ -25,7 +25,7 @@ if (!is_dir($uploadDir)) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
        // Step 1: Insert common attributes into the advertisements table
        $category = 'Machineries';
-       $subcategory = 'Harvesting Machines';
+       $subcategory = $_POST['subcategory'];
        $title = $_POST['title'];
        $stock = $_POST['stock'];
        $address = $_POST['address'];

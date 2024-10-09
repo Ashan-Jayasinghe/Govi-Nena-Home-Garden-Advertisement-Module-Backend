@@ -1,15 +1,18 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Allow CORS requests from any origin
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
+session_start();
 include 'db_connection.php';  // Include the database connection file
 
+// Set CORS headers to allow requests from the frontend (localhost:8100)
+header("Access-Control-Allow-Origin: http://localhost:8100"); // Adjust the origin to match your frontend
+header("Access-Control-Allow-Credentials: true"); // Allow credentials such as cookies to be sent
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS"); // Allow the necessary request methods
+header("Access-Control-Allow-Headers: Content-Type, Authorization"); // Allow specific headers
+
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(array('status' => 'error', 'message' => 'User not authenticated.'));
+    exit();
+}
+$user_id = $_SESSION['user_id'];
 // Check for the existence of the 'uploads' folder and create it if it doesn't exist
 $uploadDir = 'uploads/';
 if (!is_dir($uploadDir)) {
@@ -20,21 +23,20 @@ if (!is_dir($uploadDir)) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Step 1: Insert common attributes into the advertisements table
-    // Step 1: Insert common attributes into the advertisements table
-    $category = 'Machineries';
-    $subcategory = 'Harvesting Machines';
-    $title = $_POST['title'];
-    $stock = $_POST['stock'];
-    $address = $_POST['address'];
-    $mobile = $_POST['mobile'];
-    $description = $_POST['description'];
-    $acceptTerms = isset($_POST['acceptTerms']) ? 1 : 0;
-
- // Prepare the statement for common attributes
- $stmt = $conn->prepare("INSERT INTO advertisements (category, subcategory, title, stock, address, mobile, accept_terms,user_id,description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
- $stmt->bind_param("sssissiis", $category, $subcategory, $title, $stock, $address, $mobile, $acceptTerms,$user_id,$description);
-
+       // Step 1: Insert common attributes into the advertisements table
+       $category = 'Machineries';
+       $subcategory = $_POST['subcategory'];
+       $title = $_POST['title'];
+       $stock = $_POST['stock'];
+       $address = $_POST['address'];
+       $mobile = $_POST['mobile'];
+       $description = $_POST['description'];
+       $acceptTerms = isset($_POST['acceptTerms']) ? 1 : 0;
+   
+    // Prepare the statement for common attributes
+    $stmt = $conn->prepare("INSERT INTO advertisements (category, subcategory, title, stock, address, mobile, accept_terms,user_id,description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssissiis", $category, $subcategory, $title, $stock, $address, $mobile, $acceptTerms,$user_id,$description);
+   
     if (!$stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $stmt->error));
         exit;
@@ -50,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $power = $_POST['power'];  // Tractor power (HP or kW)
 
     $tractors_stmt = $conn->prepare("INSERT INTO advertisement_tractor (advertisement_id, condition_, rent_or_sell, manufacturer, price, power) VALUES (?, ?, ?, ?, ?, ?)");
-    $tractors_stmt->bind_param("isssss", $advertisement_id, $condition, $rentOrSell, $manufacturer, $price, $power);
+    $tractors_stmt->bind_param("isssdi", $advertisement_id, $condition, $rentOrSell, $manufacturer, $price, $power);
 
     if (!$tractors_stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $tractors_stmt->error));
