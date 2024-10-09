@@ -1,27 +1,32 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+session_start();
+include 'db_connection.php';  // Include the database connection file
 
-// Allow CORS requests from any origin
-header("Access-Control-Allow-Origin: *");
+// Set CORS headers to allow requests from the frontend (localhost:8100)
+header("Access-Control-Allow-Origin: http://localhost:8100");
+header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-include 'db_connection.php';  // Include the database connection file
+// Check if the user is authenticated
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(array('status' => 'error', 'message' => 'User not authenticated.'));
+    exit();
+}
+$user_id = $_SESSION['user_id'];
 
 // Check for the existence of the 'uploads' folder and create it if it doesn't exist
 $uploadDir = 'uploads/';
 if (!is_dir($uploadDir)) {
     if (!mkdir($uploadDir, 0777, true)) {
         echo json_encode(array('status' => 'error', 'message' => 'Failed to create uploads directory.'));
-        exit;
+        exit();
     }
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Step 1: Insert common attributes into the advertisements table
-    $category = $_POST['category'];
+    $category = 'Agro Chemicals';
     $subcategory = $_POST['subcategory'];
     $title = $_POST['title'];
     $stock = $_POST['stock'];
@@ -29,18 +34,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $mobile = $_POST['mobile'];
     $description = $_POST['description'];
     $acceptTerms = isset($_POST['acceptTerms']) ? 1 : 0;
+
     // Prepare the statement for common attributes
-    $stmt = $conn->prepare("INSERT INTO advertisements (category, subcategory, title, stock, address, mobile, accept_terms,description) VALUES (?, ?, ?, ?, ?, ?, ?,?)");
-    $stmt->bind_param("sssissis", $category, $subcategory, $title, $stock, $address, $mobile, $acceptTerms,$description);
+    $stmt = $conn->prepare("INSERT INTO advertisements (category, subcategory, title, stock, address, mobile, accept_terms, user_id, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssissiis", $category, $subcategory, $title, $stock, $address, $mobile, $acceptTerms, $user_id, $description);
 
     if (!$stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $stmt->error));
-        exit;
+        exit();
     }
 
     $advertisement_id = $stmt->insert_id;
 
-    // Step 2: Insert unique attributes for pesticides
+    // Step 2: Insert unique attributes for Pesticides
     $type = $_POST['type'];
     $applicationRatio = $_POST['applicationRatio'];
     $price1L = $_POST['price1L'];
@@ -48,11 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $price10L = $_POST['price10L'];
 
     $pesticides_stmt = $conn->prepare("INSERT INTO advertisement_pesticides (advertisement_id, type, application_ratio, price_1L, price_5L, price_10L) VALUES (?, ?, ?, ?, ?, ?)");
-    $pesticides_stmt->bind_param("isdsss", $advertisement_id, $type, $applicationRatio, $price1L, $price5L, $price10L);
+    $pesticides_stmt->bind_param("isdddd", $advertisement_id, $type, $applicationRatio, $price1L, $price5L, $price10L);
 
     if (!$pesticides_stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $pesticides_stmt->error));
-        exit;
+        exit();
     }
 
     // Step 3: Insert images into advertisement_images table
@@ -66,27 +72,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $image_stmt->bind_param("is", $advertisement_id, $imagePath);
             if (!$image_stmt->execute()) {
                 echo json_encode(array('status' => 'error', 'message' => 'Image upload failed: ' . $image_stmt->error));
-                exit;
+                exit();
             }
         }
     }
 
-    // Step 4: Insert specifications into advertisement_specifications table
-    // if (isset($_POST['specifications'])) {
-    //     $specifications = json_decode($_POST['specifications'], true);
-    //     foreach ($specifications as $specification) {
-    //         $spec_stmt = $conn->prepare("INSERT INTO advertisement_specifications (advertisement_id, specification) VALUES (?, ?)");
-    //         $spec_stmt->bind_param("is", $advertisement_id, $specification);
-    //         if (!$spec_stmt->execute()) {
-    //             echo json_encode(array('status' => 'error', 'message' => 'Specification upload failed: ' . $spec_stmt->error));
-    //             exit;
-    //         }
-    //     }
-    // }
-
     // Success response
     echo json_encode(array('status' => 'success', 'message' => 'Pesticide advertisement successfully submitted'));
-    exit;
+    exit();
 }
 
 $conn->close();
