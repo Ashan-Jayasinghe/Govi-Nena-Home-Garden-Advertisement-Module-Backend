@@ -29,7 +29,7 @@ if ($name) {
     echo json_encode(array(
         'status' => 'success',
         'user' => array(
-            
+            'id' => $user_id,
             'name' => $name,
             'email' => $email,
             'profile_image' => $profileImageUrl  // Return profile image path
