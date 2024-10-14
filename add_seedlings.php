@@ -26,8 +26,8 @@ if (!is_dir($uploadDir)) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Step 1: Insert common attributes into the advertisements table
     // Step 1: Insert common attributes into the advertisements table
-    $category = 'Machineries';
-    $subcategory = 'Harvesting Machines';
+    $category = $_POST['category'];
+    $subcategory = $_POST['subcategory'];
     $title = $_POST['title'];
     $stock = $_POST['stock'];
     $address = $_POST['address'];
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $price = $_POST['price'];  // Price of the seedlings
 
     $seedlings_stmt = $conn->prepare("INSERT INTO advertisement_seedlings (advertisement_id, type, variety, age, size, price) VALUES (?, ?, ?, ?, ?, ?)");
-    $seedlings_stmt->bind_param("isssss", $advertisement_id, $type, $variety, $age, $size, $price);
+    $seedlings_stmt->bind_param("issisd", $advertisement_id, $type, $variety, $age, $size, $price);
 
     if (!$seedlings_stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $seedlings_stmt->error));

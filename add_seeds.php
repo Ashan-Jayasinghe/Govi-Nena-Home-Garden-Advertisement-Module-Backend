@@ -3,11 +3,12 @@ session_start();
 include 'db_connection.php';  // Include the database connection file
 
 // Set CORS headers to allow requests from the frontend (localhost:8100)
-header("Access-Control-Allow-Origin: http://localhost:8100"); // Adjust the origin to match your frontend
-header("Access-Control-Allow-Credentials: true"); // Allow credentials such as cookies to be sent
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS"); // Allow the necessary request methods
-header("Access-Control-Allow-Headers: Content-Type, Authorization"); // Allow specific headers
+header("Access-Control-Allow-Origin: http://localhost:8100");
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
+// Check if the user is authenticated
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(array('status' => 'error', 'message' => 'User not authenticated.'));
     exit();
@@ -19,15 +20,14 @@ $uploadDir = 'uploads/';
 if (!is_dir($uploadDir)) {
     if (!mkdir($uploadDir, 0777, true)) {
         echo json_encode(array('status' => 'error', 'message' => 'Failed to create uploads directory.'));
-        exit;
+        exit();
     }
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Step 1: Insert common attributes into the advertisements table
-    // Step 1: Insert common attributes into the advertisements table
-    $category = 'Machineries';
-    $subcategory = 'Harvesting Machines';
+    $category = $_POST['category'];
+    $subcategory = $_POST['subcategory'];
     $title = $_POST['title'];
     $stock = $_POST['stock'];
     $address = $_POST['address'];
@@ -35,13 +35,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $description = $_POST['description'];
     $acceptTerms = isset($_POST['acceptTerms']) ? 1 : 0;
 
- // Prepare the statement for common attributes
- $stmt = $conn->prepare("INSERT INTO advertisements (category, subcategory, title, stock, address, mobile, accept_terms,user_id,description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
- $stmt->bind_param("sssissiis", $category, $subcategory, $title, $stock, $address, $mobile, $acceptTerms,$user_id,$description);
+    // Prepare the statement for common attributes
+    $stmt = $conn->prepare("INSERT INTO advertisements (category, subcategory, title, stock, address, mobile, accept_terms, user_id, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssissiis", $category, $subcategory, $title, $stock, $address, $mobile, $acceptTerms, $user_id, $description);
 
     if (!$stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $stmt->error));
-        exit;
+        exit();
     }
 
     $advertisement_id = $stmt->insert_id;
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $price10kg = $_POST['price10kg'];
 
     $seeds_stmt = $conn->prepare("INSERT INTO advertisement_seeds (advertisement_id, type, variety, price_1kg, price_5kg, price_10kg) VALUES (?, ?, ?, ?, ?, ?)");
-    $seeds_stmt->bind_param("isssss", $advertisement_id, $type, $variety, $price1kg, $price5kg, $price10kg);
+    $seeds_stmt->bind_param("issddd", $advertisement_id, $type, $variety, $price1kg, $price5kg, $price10kg);
 
     if (!$seeds_stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $seeds_stmt->error));
