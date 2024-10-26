@@ -26,7 +26,8 @@ $sql = "SELECT a.*, i.image_path
         FROM advertisements a
         INNER JOIN saved_ads s ON a.id = s.ad_id  -- Fetch only saved ads
         LEFT JOIN advertisement_images i ON a.id = i.advertisement_id
-        WHERE s.user_id = ?";  // Filter by logged-in user ID
+        WHERE s.user_id = ? 
+        AND a.is_active = 1";  // Filter by logged-in user ID
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id); // Bind the user ID
