@@ -38,6 +38,8 @@ $result = $stmt->get_result();
 // Fetch saved advertisements and store them in the ads array
 while ($row = $result->fetch_assoc()) {
     $ad_id = $row['id'];
+    $row['isExpired'] = (strtotime($row['expires_at']) < time()) ? true : false; // Mark as expired or active
+
     if (!isset($ads[$ad_id])) {
         $ads[$ad_id] = $row; // Basic advertisement data
         $ads[$ad_id]['images'] = array(); // Initialize images array

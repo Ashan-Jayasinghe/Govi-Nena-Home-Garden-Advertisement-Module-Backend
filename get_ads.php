@@ -7,118 +7,108 @@ header("Access-Control-Allow-Methods: GET");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 $category = $_GET['category'];
-
-// Define the upload path for images
 $uploadPath = "http://localhost/Govi-Nena-Home-Garden-Advertisement-Module-Backend/";
-
-// Initialize an array to store advertisements
 $ads = array();
 
-// SQL to get all advertisements with images based on the category
+// Modify SQL query to fetch all ads in the category, regardless of expiration
 $sql = "SELECT a.*, i.image_path
         FROM advertisements a
         LEFT JOIN advertisement_images i ON a.id = i.advertisement_id
-        WHERE a.category = ?";
+        WHERE a.category = ?
+        AND a.is_active = 1";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $category);
-
-// Execute the query
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Fetch advertisements and store them in the ads array
 while ($row = $result->fetch_assoc()) {
     $ad_id = $row['id'];
+    $row['isExpired'] = (strtotime($row['expires_at']) < time()) ? true : false; // Mark as expired or active
+
     if (!isset($ads[$ad_id])) {
-        $ads[$ad_id] = $row; // Basic advertisement data
-        $ads[$ad_id]['images'] = array(); // Initialize images array
+        $ads[$ad_id] = $row;
+        $ads[$ad_id]['images'] = array();
     }
 
-    // Append image paths
     if ($row['image_path']) {
-        $ads[$ad_id]['images'][] = $uploadPath . '/' . $row['image_path']; // Prepend the upload path to image
+        $ads[$ad_id]['images'][] = $uploadPath . '/' . $row['image_path'];
     }
 }
 
-// Now retrieve unique attributes based on subcategory from the fetched ads
+// Fetch unique attributes for each ad based on subcategory
 foreach ($ads as $ad_id => $ad) {
-    $subcategory = $ad['subcategory']; // Get subcategory from the advertisement
+    $subcategory = $ad['subcategory'];
 
     if ($subcategory) {
-        // Determine the unique table based on the subcategory
         $uniqueTable = '';
         switch ($subcategory) {
             case 'Inorganic':
-                $uniqueTable = 'advertisement_inorganic'; // Example for machineries
+                $uniqueTable = 'advertisement_inorganic';
                 break;
             case 'Organic':
                 $uniqueTable = 'advertisement_organic';
                 break;
             case 'Pesticides':
-                $uniqueTable = 'advertisement_pesticides'; // Example for fertilizers
+                $uniqueTable = 'advertisement_pesticides';
                 break;
             case 'Plant Growth Regulators':
-                $uniqueTable = 'advertisement_pgr'; // Example for machineries
+                $uniqueTable = 'advertisement_pgr';
                 break;
             case 'Seedlings':
                 $uniqueTable = 'advertisement_seedlings';
                 break;
             case 'Seeds':
-                $uniqueTable = 'advertisement_seeds'; // Example for fertilizers
+                $uniqueTable = 'advertisement_seeds';
                 break;
             case 'Tubers':
-                $uniqueTable = 'advertisement_tuber'; // Example for machineries
+                $uniqueTable = 'advertisement_tuber';
                 break;
             case 'Dryers':
                 $uniqueTable = 'advertisement_dryers';
                 break;
             case 'Harvesting Machines':
-                $uniqueTable = 'advertisement_harvesting_machines'; // Example for fertilizers
+                $uniqueTable = 'advertisement_harvesting_machines';
                 break;
             case 'Tractors':
                 $uniqueTable = 'advertisement_tractor';
                 break;
             case 'Tillages':
-                $uniqueTable = 'advertisement_tillages'; // Example for fertilizers
+                $uniqueTable = 'advertisement_tillages';
                 break;
             case 'Sprayers':
-                $uniqueTable = 'advertisement_sprayers'; // Example for machineries
+                $uniqueTable = 'advertisement_sprayers';
                 break;
             case 'Planting Machines':
                 $uniqueTable = 'advertisement_planting_machines';
                 break;
             case 'Others':
-                $uniqueTable = 'advertisement_others'; // Example for fertilizers
+                $uniqueTable = 'advertisement_others';
                 break;
             case 'Irrigation Systems':
-                $uniqueTable = 'advertisement_irrigation_systems'; // Example for machineries
+                $uniqueTable = 'advertisement_irrigation_systems';
                 break;
-            // Add more cases for other subcategories
             default:
                 continue 2; // Skip to the next ad if no valid unique table found
         }
 
-        // Prepare SQL to join with the unique attributes table
-        $sqlUnique = "SELECT * FROM $uniqueTable WHERE advertisement_id = ?";
-        $stmtUnique = $conn->prepare($sqlUnique);
-        $stmtUnique->bind_param("i", $ad_id);
-        $stmtUnique->execute();
-        $resultUnique = $stmtUnique->get_result();
+        if ($uniqueTable) {
+            $sqlUnique = "SELECT * FROM $uniqueTable WHERE advertisement_id = ?";
+            $stmtUnique = $conn->prepare($sqlUnique);
+            $stmtUnique->bind_param("i", $ad_id);
+            $stmtUnique->execute();
+            $resultUnique = $stmtUnique->get_result();
 
-        // Fetch unique attributes and append them to the corresponding advertisement
-        if ($resultUnique->num_rows > 0) {
-            $uniqueRow = $resultUnique->fetch_assoc();
-            foreach ($uniqueRow as $key => $value) {
-                $ads[$ad_id][$key] = $value; // Append unique attributes to the ad
+            if ($resultUnique->num_rows > 0) {
+                $uniqueRow = $resultUnique->fetch_assoc();
+                foreach ($uniqueRow as $key => $value) {
+                    $ads[$ad_id][$key] = $value;
+                }
             }
         }
     }
 }
 
-// Reindex the array to return a clean response
 $ads = array_values($ads);
-
-// Return the advertisements along with their unique attributes and images
 echo json_encode($ads);
 $conn->close();

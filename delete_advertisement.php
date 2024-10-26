@@ -32,6 +32,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         if ($result->num_rows > 0) {
             $advertisement = $result->fetch_assoc();
             if ($advertisement['user_id'] == $user_id) {
+
+                // Delete dependent records from saved_ads
+                $deleteSavedAdsQuery = "DELETE FROM saved_ads WHERE ad_id = ?";
+                $stmt = $conn->prepare($deleteSavedAdsQuery);
+                $stmt->bind_param("i", $adId);
+                $stmt->execute();
+
                 // User is authorized to delete this advertisement
                 $sql = "DELETE FROM advertisements WHERE id = ?";
                 $stmt = $conn->prepare($sql);
