@@ -7,7 +7,6 @@ header("Access-Control-Allow-Credentials: true"); // Allow credentials such as c
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS"); // Allow the necessary request methods
 header("Access-Control-Allow-Headers: Content-Type, Authorization"); // Allow specific headers
 
-
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(array('status' => 'error', 'message' => 'User not authenticated.'));
     exit();
@@ -15,14 +14,30 @@ if (!isset($_SESSION['user_id'])) {
 
 include 'db_connection.php';
 
-$password = isset($_POST['password']) ? $_POST['password'] : '';
 $user_id = $_SESSION['user_id'];
+$current_password = isset($_POST['currentPassword']) ? $_POST['currentPassword'] : '';
+$new_password = isset($_POST['newPassword']) ? $_POST['newPassword'] : '';
+
+// Fetch the current hashed password from the database
+$stmt = $conn->prepare("SELECT password_hash FROM users WHERE id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$stmt->bind_result($hashed_password);
+$stmt->fetch();
+$stmt->close();
+
+// Verify the current password
+if (!password_verify($current_password, $hashed_password)) {
+    echo json_encode(array('status' => 'error', 'message' => 'Current password is incorrect.'));
+    exit();
+}
 
 // Hash the new password
-$password_hash = password_hash($password, PASSWORD_BCRYPT);
+$new_password_hash = password_hash($new_password, PASSWORD_BCRYPT);
 
+// Update the password in the database
 $stmt = $conn->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
-$stmt->bind_param("si", $password_hash, $user_id);
+$stmt->bind_param("si", $new_password_hash, $user_id);
 
 if ($stmt->execute()) {
     echo json_encode(array('status' => 'success', 'message' => 'Password updated successfully.'));
