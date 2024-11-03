@@ -35,9 +35,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $description = $_POST['description'];
     $acceptTerms = isset($_POST['acceptTerms']) ? 1 : 0;
 
+        // Set the expiration date to 30 days from now
+        $expires_at = date('Y-m-d H:i:s', strtotime('+30 days'));
+
+        // By default, set the advertisement to active
+        $is_active = true;
+
  // Prepare the statement for common attributes
- $stmt = $conn->prepare("INSERT INTO advertisements (category, subcategory, title, stock, address, mobile, accept_terms,user_id,description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
- $stmt->bind_param("sssissiis", $category, $subcategory, $title, $stock, $address, $mobile, $acceptTerms,$user_id,$description);
+ $stmt = $conn->prepare("INSERT INTO advertisements (category, subcategory, title, stock, address, mobile, accept_terms,user_id,description,expires_at, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+ $stmt->bind_param("sssissiissi", $category, $subcategory, $title, $stock, $address, $mobile, $acceptTerms,$user_id,$description,$expires_at, $is_active);
 
     if (!$stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $stmt->error));
