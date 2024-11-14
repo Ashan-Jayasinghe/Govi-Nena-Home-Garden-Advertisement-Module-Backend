@@ -39,7 +39,6 @@ while ($row = $result->fetch_assoc()) {
 // Fetch unique attributes for each ad based on subcategory
 foreach ($ads as $ad_id => $ad) {
     $subcategory = $ad['subcategory'];
-
     if ($subcategory) {
         $uniqueTable = '';
         switch ($subcategory) {
