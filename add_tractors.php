@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
        $description = $_POST['description'];
        $acceptTerms = isset($_POST['acceptTerms']) ? 1 : 0;
 
-           // Set the expiration date to 30 days from now
+    // Set the expiration date to 30 days from now
     $expires_at = date('Y-m-d H:i:s', strtotime('+30 days'));
 
     // By default, set the advertisement to active
