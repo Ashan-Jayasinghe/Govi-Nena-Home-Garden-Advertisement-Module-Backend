@@ -83,19 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    // Step 4: Insert specifications into advertisement_specifications table
-    // if (isset($_POST['specifications'])) {
-    //     $specifications = json_decode($_POST['specifications'], true);
-    //     foreach ($specifications as $specification) {
-    //         $spec_stmt = $conn->prepare("INSERT INTO advertisement_specifications (advertisement_id, specification) VALUES (?, ?)");
-    //         $spec_stmt->bind_param("is", $advertisement_id, $specification);
-    //         if (!$spec_stmt->execute()) {
-    //             echo json_encode(array('status' => 'error', 'message' => 'Specification upload failed: ' . $spec_stmt->error));
-    //             exit;
-    //         }
-    //     }
-    // }
-
     // Success response
     echo json_encode(array('status' => 'success', 'message' => 'Tuber advertisement successfully submitted'));
     exit;
