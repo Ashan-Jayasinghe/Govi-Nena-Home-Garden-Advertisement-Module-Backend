@@ -55,12 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Step 2: Insert unique attributes for Tubers
     $type = $_POST['type'];
     $variety = $_POST['variety'];
-    $price1kg = $_POST['price1kg'];
-    $price5kg = $_POST['price5kg'];
-    $price10kg = $_POST['price10kg'];
+    $unit = $_POST['unit'];
+    $amount = $_POST['amount'];
+    $price = $_POST['price'];
 
-    $tubers_stmt = $conn->prepare("INSERT INTO advertisement_tuber (advertisement_id, type, variety, price_1kg, price_5kg, price_10kg) VALUES (?, ?, ?, ?, ?, ?)");
-    $tubers_stmt->bind_param("issddd", $advertisement_id, $type, $variety, $price1kg, $price5kg, $price10kg);
+    $tubers_stmt = $conn->prepare("INSERT INTO advertisement_tuber (advertisement_id, type, variety, unit, amount, price) VALUES (?, ?, ?, ?, ?, ?)");
+    $tubers_stmt->bind_param("isssdd", $advertisement_id, $type, $variety, $unit, $amount, $price);
 
     if (!$tubers_stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $tubers_stmt->error));
