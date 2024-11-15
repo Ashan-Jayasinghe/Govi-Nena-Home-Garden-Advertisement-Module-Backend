@@ -56,12 +56,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $type = $_POST['type'];
     $npkRatio = $_POST['npkRatio'];  // NPK Ratio for inorganic fertilizers
     $method = $_POST['method'];  // Method of application
-    $price1L = $_POST['price1L'];
-    $price5L = $_POST['price5L'];
-    $price10L = $_POST['price10L'];
+    $unit = $_POST['unit'];
+    $amount = $_POST['amount'];
+    $price = $_POST['price'];
 
-    $inorganic_stmt = $conn->prepare("INSERT INTO advertisement_inorganic (advertisement_id, type, npk, method, price_1L, price_5L, price_10L) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $inorganic_stmt->bind_param("isssddd", $advertisement_id, $type, $npkRatio, $method, $price1L, $price5L, $price10L);
+    $inorganic_stmt = $conn->prepare("INSERT INTO advertisement_inorganic (advertisement_id, type, npk, method, unit, amount, price) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $inorganic_stmt->bind_param("issssdd", $advertisement_id, $type, $npkRatio, $method, $unit, $amount, $price);
 
     if (!$inorganic_stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $inorganic_stmt->error));

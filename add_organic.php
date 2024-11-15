@@ -56,12 +56,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $type = $_POST['type'];
     $npk = $_POST['npk'];  // NPK ratio for organic fertilizers
     $method = $_POST['method'];  // Method of application
-    $price1L = $_POST['price1L'];
-    $price5L = $_POST['price5L'];
-    $price10L = $_POST['price10L'];
+    $unit = $_POST['unit'];
+    $amount = $_POST['amount'];
+    $price = $_POST['price'];
 
-    $organic_stmt = $conn->prepare("INSERT INTO advertisement_organic (advertisement_id, type, npk, method, price_1L, price_5L, price_10L) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $organic_stmt->bind_param("isssddd", $advertisement_id, $type, $npk, $method, $price1L, $price5L, $price10L);
+    $organic_stmt = $conn->prepare("INSERT INTO advertisement_organic (advertisement_id, type, npk, method, unit, amount, price) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $organic_stmt->bind_param("issssdd", $advertisement_id, $type, $npk, $method, $unit, $amount, $price);
 
     if (!$organic_stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $organic_stmt->error));
@@ -84,18 +84,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    // Step 4: Insert specifications into advertisement_specifications table
-    // if (isset($_POST['specifications'])) {
-    //     $specifications = json_decode($_POST['specifications'], true);
-    //     foreach ($specifications as $specification) {
-    //         $spec_stmt = $conn->prepare("INSERT INTO advertisement_specifications (advertisement_id, specification) VALUES (?, ?)");
-    //         $spec_stmt->bind_param("is", $advertisement_id, $specification);
-    //         if (!$spec_stmt->execute()) {
-    //             echo json_encode(array('status' => 'error', 'message' => 'Specification upload failed: ' . $spec_stmt->error));
-    //             exit;
-    //         }
-    //     }
-    // }
 
     // Success response
     echo json_encode(array('status' => 'success', 'message' => 'Organic fertilizer advertisement successfully submitted'));
