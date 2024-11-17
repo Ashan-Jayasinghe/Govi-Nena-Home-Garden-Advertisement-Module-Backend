@@ -54,14 +54,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Step 2: Insert unique attributes for Fruits
     $type = $_POST['type'];
-    $variety = $_POST['variety'];  // Variety of Fruits
-    $stock= $_POST['stock'];
-    $price1kg = $_POST['price1kg'];
-    $price5kg = $_POST['price5kg'];
-    $price10kg = $_POST['price10kg'];
+    $variety = $_POST['variety'];  // Variety of fruits
+    $unit = $_POST['unit'];
+    $amount = $_POST['amount'];
+    $price = $_POST['price'];
 
-    $fruits_stmt = $conn->prepare("INSERT INTO advertisement_fruits (advertisement_id, type, variety, stock, price1kg, price5kg, price10kg) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $fruitss_stmt->bind_param("isssdd", $advertisement_id, $type, $variety, $stock, $price1kg, $price5kg, $price10kg);
+    $fruits_stmt = $conn->prepare("INSERT INTO advertisement_fruits (advertisement_id, type, variety, unit, amount, price) VALUES (?, ?, ?, ?, ?, ?)");
+    $fruits_stmt->bind_param("isssdd", $advertisement_id, $type, $variety, $unit, $amount, $price);
 
     if (!$fruits_stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $fruits_stmt->error));
@@ -98,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // }
 
     // Success response
-    echo json_encode(array('status' => 'success', 'message' => 'Seed advertisement successfully submitted'));
+    echo json_encode(array('status' => 'success', 'message' => 'Fruit advertisement successfully submitted'));
     exit;
 }
 

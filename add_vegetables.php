@@ -52,19 +52,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $advertisement_id = $stmt->insert_id;
 
-    // Step 2: Insert unique attributes for Vegitables
+    // Step 2: Insert unique attributes for Vegetables
     $type = $_POST['type'];
-    $variety = $_POST['variety'];  // Variety of vegitables
-    $stock= $_POST['stock'];
-    $price1kg = $_POST['price1kg'];
-    $price5kg = $_POST['price5kg'];
-    $price10kg = $_POST['price10kg'];
+    $variety = $_POST['variety'];  // Variety of vegetables
+    $unit = $_POST['unit'];
+    $amount = $_POST['amount'];
+    $price = $_POST['price'];
 
-    $vegitables_stmt = $conn->prepare("INSERT INTO advertisement_vegitables (advertisement_id, type, variety, stock, price1kg, price5kg, price10kg) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $vegitables_stmt->bind_param("isssdd", $advertisement_id, $type, $variety, $stock, $price1kg, $price5kg, $price10kg);
+    $vegetables_stmt = $conn->prepare("INSERT INTO advertisement_vegetables (advertisement_id, type, variety, unit, amount, price) VALUES (?, ?, ?, ?, ?, ?)");
+    $vegetables_stmt->bind_param("isssdd", $advertisement_id, $type, $variety, $unit, $amount, $price);
 
-    if (!$vegitables_stmt->execute()) {
-        echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $vegitables_stmt->error));
+    if (!$vegetables_stmt->execute()) {
+        echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $vegetables_stmt->error));
         exit;
     }
 
@@ -98,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // }
 
     // Success response
-    echo json_encode(array('status' => 'success', 'message' => 'Seed advertisement successfully submitted'));
+    echo json_encode(array('status' => 'success', 'message' => 'Vegetable advertisement successfully submitted'));
     exit;
 }
 
