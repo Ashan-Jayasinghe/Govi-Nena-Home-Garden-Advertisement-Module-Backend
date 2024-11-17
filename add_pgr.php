@@ -55,12 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Step 2: Insert unique attributes for Plant Growth Regulators (PGR)
     $type = $_POST['type'];
     $applicationRatio = $_POST['applicationRatio'];
-    $price1L = $_POST['price1L'];
-    $price5L = $_POST['price5L'];
-    $price10L = $_POST['price10L'];
+    $unit = $_POST['unit'];
+    $amount = $_POST['amount'];
+    $price = $_POST['price'];
 
-    $pgr_stmt = $conn->prepare("INSERT INTO advertisement_pgr (advertisement_id, type, application_ratio, price_1L, price_5L, price_10L) VALUES (?, ?, ?, ?, ?, ?)");
-    $pgr_stmt->bind_param("isdddd", $advertisement_id, $type, $applicationRatio, $price1L, $price5L, $price10L);
+    $pgr_stmt = $conn->prepare("INSERT INTO advertisement_pgr (advertisement_id, type, application_ratio, unit, amount, price) VALUES (?, ?, ?, ?, ?, ?)");
+    $pgr_stmt->bind_param("isssdd", $advertisement_id, $type, $applicationRatio, $unit, $amount, $price);
 
     if (!$pgr_stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $pgr_stmt->error));

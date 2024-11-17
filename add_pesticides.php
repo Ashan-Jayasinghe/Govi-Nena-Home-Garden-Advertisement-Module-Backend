@@ -55,12 +55,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Step 2: Insert unique attributes for Pesticides
     $type = $_POST['type'];
     $applicationRatio = $_POST['applicationRatio'];
-    $price1L = $_POST['price1L'];
-    $price5L = $_POST['price5L'];
-    $price10L = $_POST['price10L'];
+    $unit = $_POST['unit'];
+    $amount = $_POST['amount'];
+    $price = $_POST['price'];
 
-    $pesticides_stmt = $conn->prepare("INSERT INTO advertisement_pesticides (advertisement_id, type, application_ratio, price_1L, price_5L, price_10L) VALUES (?, ?, ?, ?, ?, ?)");
-    $pesticides_stmt->bind_param("isdddd", $advertisement_id, $type, $applicationRatio, $price1L, $price5L, $price10L);
+
+    $pesticides_stmt = $conn->prepare("INSERT INTO advertisement_pesticides (advertisement_id, type, application_ratio, unit, amount, price) VALUES (?, ?, ?, ?, ?, ?)");
+    $pesticides_stmt->bind_param("isssdd", $advertisement_id, $type, $applicationRatio, $unit, $amount, $price);
 
     if (!$pesticides_stmt->execute()) {
         echo json_encode(array('status' => 'error', 'message' => 'Execute failed: ' . $pesticides_stmt->error));
