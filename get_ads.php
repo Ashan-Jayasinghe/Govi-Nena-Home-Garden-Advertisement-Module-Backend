@@ -87,6 +87,12 @@ foreach ($ads as $ad_id => $ad) {
             case 'Irrigation Systems':
                 $uniqueTable = 'advertisement_irrigation_systems';
                 break;
+            case 'Vegetables':
+                $uniqueTable = 'advertisement_vegetables';
+                break;
+            case 'Fruits':
+                $uniqueTable = 'advertisement_fruits';
+                break;
             default:
                 continue 2; // Skip to the next ad if no valid unique table found
         }
