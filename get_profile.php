@@ -21,7 +21,8 @@ $stmt->bind_result($name, $email, $image_url);
 $stmt->fetch();
 
 $baseUrl = "http://localhost/Govi-Nena-Home-Garden-Advertisement-Module-Backend/";
-$profileImageUrl = $image_url ? $baseUrl . $image_url : null;
+$defaultImg = $baseUrl."uploads/profile_images/user.png";
+$profileImageUrl = $image_url ? $baseUrl . $image_url : $defaultImg;
 
 if ($name) {
 
