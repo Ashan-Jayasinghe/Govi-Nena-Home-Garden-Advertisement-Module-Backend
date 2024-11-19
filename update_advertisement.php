@@ -38,7 +38,7 @@ if (isset($data['advertisement_id']) && isset($data['title']) && isset($data['ca
     $price = mysqli_real_escape_string($conn, $data['price']);
     $description = mysqli_real_escape_string($conn, $data['description']);
 
-    // Update advertisement query
+    // Update advertisement fields except for the price
     $query = "UPDATE advertisements SET 
                 title = '$title',
                 category = '$category',
@@ -54,11 +54,87 @@ if (isset($data['advertisement_id']) && isset($data['title']) && isset($data['ca
 
     // Execute the query
     if (mysqli_query($conn, $query)) {
-        // If update is successful
-        echo json_encode(['status' => 'success', 'message' => 'Advertisement updated successfully.']);
+        // If update is successful, update the price in the corresponding subcategory table
+        $uniqueTable = '';
+        switch ($subcategory) {
+            case 'Inorganic':
+                $uniqueTable = 'advertisement_inorganic';
+                break;
+            case 'Organic':
+                $uniqueTable = 'advertisement_organic';
+                break;
+            case 'Pesticides':
+                $uniqueTable = 'advertisement_pesticides';
+                break;
+            case 'Plant Growth Regulators':
+                $uniqueTable = 'advertisement_pgr';
+                break;
+            case 'Seedlings':
+                $uniqueTable = 'advertisement_seedlings';
+                break;
+            case 'Seeds':
+                $uniqueTable = 'advertisement_seeds';
+                break;
+            case 'Tubers':
+                $uniqueTable = 'advertisement_tuber';
+                break;
+            case 'Dryers':
+                $uniqueTable = 'advertisement_dryers';
+                break;
+            case 'Harvesting Machines':
+                $uniqueTable = 'advertisement_harvesting_machines';
+                break;
+            case 'Tractors':
+                $uniqueTable = 'advertisement_tractor';
+                break;
+            case 'Tillages':
+                $uniqueTable = 'advertisement_tillages';
+                break;
+            case 'Sprayers':
+                $uniqueTable = 'advertisement_sprayers';
+                break;
+            case 'Planting Machines':
+                $uniqueTable = 'advertisement_planting_machines';
+                break;
+            case 'Others':
+                $uniqueTable = 'advertisement_others';
+                break;
+            case 'Irrigation Systems':
+                $uniqueTable = 'advertisement_irrigation_systems';
+                break;
+            case 'Vegetables':
+                $uniqueTable = 'advertisement_vegetables';
+                break;
+            case 'Fruits':
+                $uniqueTable = 'advertisement_fruits';
+                break;
+            default:
+                echo json_encode(['status' => 'error', 'message' => 'Invalid subcategory.']);
+                exit();
+        }
+
+        // Update price in the selected subcategory table
+        if ($uniqueTable != '') {
+            $priceQuery = "UPDATE $uniqueTable SET 
+                            price = '$price' 
+                          WHERE advertisement_id = '$advertisement_id'";
+
+            // Log the price update query for debugging
+            error_log("Executing price query: $priceQuery"); // Log the query
+
+            // Execute the price update query
+            if (mysqli_query($conn, $priceQuery)) {
+                // If price update is successful
+                echo json_encode(['status' => 'success', 'message' => 'Advertisement and price updated successfully.']);
+            } else {
+                // If price query fails, log the error
+                error_log("Error executing price query: " . mysqli_error($conn)); // Log the error
+                echo json_encode(['status' => 'error', 'message' => 'Failed to update price.']);
+            }
+        }
     } else {
         // If query fails, log the error
-        error_log("Error executing query: " . mysqli_error($conn)); // Log the error
+        error_log("Error executing advertisement update query: " . mysqli_error($conn)); // Log the error
         echo json_encode(['status' => 'error', 'message' => 'Failed to update advertisement.']);
     }
 } else {
